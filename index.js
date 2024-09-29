@@ -60,6 +60,55 @@ app.post('/api/getuserdetails', async (req, res) => {
   });
 
 
+ // API endpoint to append ratings and review comment to an existing user
+app.post('/api/rate', async (req, res) => {
+   //const { firstName } = req.params; // Get username from URL params
+    const {
+        firstName,
+        KnowledgeOfSubject,
+        Approachability,
+        Preparedness,
+        Availability,
+        reviewComment,
+    } = req.body; // Destructure the request body
+
+    try {
+        // Find the user by username (assuming it's stored in the username field)
+        const user = await User.findOne({ firstName: firstName });
+
+        // If user not found, return a 404 error
+        if (!user) {
+            return res.status(404).json({ message: 'User not found.' });
+        }
+
+        // Update the user's s
+        user.knowledgeOfSubject = KnowledgeOfSubject;
+        user.approachability = Approachability;
+        user.preparedness = Preparedness;
+        user.availability = Availability;
+
+        // Add review comment to reviews array
+        if (reviewComment) {
+            user.reviews.push({
+                comment: reviewComment,
+                ratingDate: Date.now(), // Add current date
+            });
+        }
+
+        // Save the updated user document
+        await user.save();
+
+        // Respond with a success message
+        res.status(200).json({ message: 'User ratings and review added successfully.', user });
+    } catch (error) {
+        console.error('Error updating user:', error);
+        res.status(500).json({ message: 'Internal server error.' });
+    }
+});
+
+  
+
+
 
 
 -
